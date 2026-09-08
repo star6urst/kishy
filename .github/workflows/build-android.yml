@@ -35,17 +35,17 @@ jobs:
       - name: Generate native Android project
         run: npx expo prebuild --platform android --no-install
 
-      - name: Build debug APK
+      - name: Build release APK
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
 
       - name: Upload APK as build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: kishy-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: kishy-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
 
       - name: Publish APK to a Release
         if: github.ref == 'refs/heads/main'
@@ -53,6 +53,6 @@ jobs:
         with:
           tag_name: build-${{ github.run_number }}
           name: Kishy build ${{ github.run_number }}
-          files: android/app/build/outputs/apk/debug/app-debug.apk
+          files: android/app/build/outputs/apk/release/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
