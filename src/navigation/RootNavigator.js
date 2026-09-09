@@ -8,7 +8,7 @@ import KishyDetailScreen from '../screens/KishyDetailScreen';
 import EventsScreen from '../screens/EventsScreen';
 import SubmitScreen from '../screens/SubmitScreen';
 import DiscoveryScreen from '../screens/DiscoveryScreen';
-import CommunityScreen from '../screens/CommunityScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import { colors, fonts } from '../theme/theme';
 
 const Tab = createBottomTabNavigator();
@@ -19,7 +19,7 @@ const ICONS = {
   Events: 'calendar',
   Submit: 'plus-circle',
   Discovery: 'compass',
-  Community: 'users',
+  Profile: 'user',
 };
 
 const TAB_LABELS = {
@@ -27,7 +27,7 @@ const TAB_LABELS = {
   Events: 'Events',
   Submit: 'Submit',
   Discovery: 'Discovery',
-  Community: 'Community',
+  Profile: 'Profile',
 };
 
 function KishysStackScreen() {
@@ -82,7 +82,7 @@ export default function RootNavigator() {
         <Tab.Screen name="Events" component={EventsScreen} />
         <Tab.Screen name="Submit" component={SubmitScreen} />
         <Tab.Screen name="Discovery" component={DiscoveryScreen} />
-        <Tab.Screen name="Community" component={CommunityScreen} />
+        <Tab.Screen name="Profile" component={ProfileScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
