@@ -3,7 +3,6 @@ import {
   initialKishys,
   initialEvents,
   initialSubmissions,
-  initialCommunityMessages,
 } from '../data/mockData';
 
 // In-memory only. Nothing here persists between app launches yet ---
@@ -21,23 +20,22 @@ export function AppDataProvider({ children }) {
   const [kishys] = useState(initialKishys);
   const [events, setEvents] = useState(initialEvents);
   const [submissions, setSubmissions] = useState(initialSubmissions);
-  const [communityMessages, setCommunityMessages] = useState(
-    initialCommunityMessages
-  );
+  const [displayName, setDisplayName] = useState('You');
+  const [savedKishyIds, setSavedKishyIds] = useState([]);
 
-  const addSubmission = ({ title, body, author, visibility }) => {
+  const addSubmission = ({ title, body, visibility }) => {
     const newSubmission = {
       id: makeId('sub'),
       title,
       body,
-      author: author || 'You',
+      author: displayName,
       visibility,
     };
     setSubmissions((prev) => [newSubmission, ...prev]);
     return newSubmission;
   };
 
-  const addEventComment = (eventId, { author, body }) => {
+  const addEventComment = (eventId, { body }) => {
     setEvents((prev) =>
       prev.map((event) =>
         event.id === eventId
@@ -45,7 +43,7 @@ export function AppDataProvider({ children }) {
               ...event,
               comments: [
                 ...event.comments,
-                { id: makeId('c'), author: author || 'You', body },
+                { id: makeId('c'), author: displayName, body },
               ],
             }
           : event
@@ -53,11 +51,12 @@ export function AppDataProvider({ children }) {
     );
   };
 
-  const addCommunityMessage = ({ author, body }) => {
-    setCommunityMessages((prev) => [
-      ...prev,
-      { id: makeId('m'), author: author || 'You', body },
-    ]);
+  const toggleSavedKishy = (kishyId) => {
+    setSavedKishyIds((prev) =>
+      prev.includes(kishyId)
+        ? prev.filter((id) => id !== kishyId)
+        : [...prev, kishyId]
+    );
   };
 
   const value = useMemo(
@@ -65,12 +64,14 @@ export function AppDataProvider({ children }) {
       kishys,
       events,
       submissions,
-      communityMessages,
+      displayName,
+      savedKishyIds,
+      setDisplayName,
       addSubmission,
       addEventComment,
-      addCommunityMessage,
+      toggleSavedKishy,
     }),
-    [kishys, events, submissions, communityMessages]
+    [kishys, events, submissions, displayName, savedKishyIds]
   );
 
   return (
