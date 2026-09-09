@@ -1,8 +1,15 @@
-import React from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import NumberedIndex from '../components/NumberedIndex';
-import LayeredVideo from '../components/LayeredVideo';
 import { colors, type, spacing } from '../theme/theme';
 import { useAppData } from '../context/AppDataContext';
 
@@ -11,6 +18,26 @@ export default function KishyDetailScreen({ route, navigation }) {
   const { kishyId } = route.params;
   const kishy = kishys.find((k) => k.id === kishyId) || kishys[0];
   const isSaved = savedKishyIds.includes(kishy.id);
+  const [playing, setPlaying] = useState(false);
+
+  const player = useVideoPlayer(kishy.videoUrl, (p) => {
+    p.loop = false;
+  });
+
+  // Swap the source when a different number is picked in the index above,
+  // and drop back to the thumbnail rather than carrying playback over.
+  useEffect(() => {
+    player.replace(kishy.videoUrl);
+    setPlaying(false);
+  }, [kishy.videoUrl]);
+
+  useEffect(() => {
+    if (playing) {
+      player.play();
+    } else {
+      player.pause();
+    }
+  }, [playing, player]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -21,7 +48,24 @@ export default function KishyDetailScreen({ route, navigation }) {
       />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.mediaWrap}>
-          <LayeredVideo key={kishy.videoUrl} videoUrl={kishy.videoUrl} />
+          {playing ? (
+            <VideoView
+              player={player}
+              style={styles.media}
+              nativeControls
+              contentFit="cover"
+            />
+          ) : (
+            <Pressable onPress={() => setPlaying(true)} style={styles.media}>
+              <Image
+                source={{ uri: kishy.thumbnailUrl }}
+                style={StyleSheet.absoluteFill}
+              />
+              <View style={styles.playBadge}>
+                <Text style={styles.playGlyph}>{'\u25B6'}</Text>
+              </View>
+            </Pressable>
+          )}
         </View>
 
         <View style={styles.info}>
@@ -63,6 +107,28 @@ const styles = StyleSheet.create({
   mediaWrap: {
     marginTop: spacing.md,
     marginHorizontal: spacing.lg,
+  },
+  media: {
+    width: '100%',
+    aspectRatio: 4 / 5,
+    backgroundColor: colors.surfaceRaised,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playBadge: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderWidth: 1,
+    borderColor: colors.textPrimary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playGlyph: {
+    color: colors.textPrimary,
+    fontSize: 18,
+    marginLeft: 3,
   },
   info: {
     paddingHorizontal: spacing.lg,
